@@ -1,0 +1,368 @@
+import pygame
+import random
+import math
+
+
+pygame.init()
+
+tela = pygame.display.set_mode((800, 600))
+pygame.display.set_caption("Teste")
+
+clock = pygame.time.Clock()
+
+teclas = pygame.key.get_pressed()
+
+class Player():
+    def __init__(self):
+        self.x = 100
+        self.y = 100
+        self.vel = 5
+        self.cooldown = 0 
+    def mover(self, teclas):
+        if teclas [pygame.K_d]:
+            self.x += self.vel
+        if teclas [pygame.K_a]:
+            self.x -= self.vel
+        if teclas [pygame.K_s]:
+            self.y += self.vel
+        if teclas [pygame.K_w]:
+            self.y -= self.vel
+
+        if self.cooldown > 0:
+            self.cooldown -= 1
+
+
+        if teclas [pygame.K_UP] and self.cooldown == 0:
+            tiros.append(Tiro(self.x + 25, self.y, 0, -10))
+            self.cooldown = 20
+
+        if teclas [pygame.K_LEFT] and self.cooldown == 0:
+            tiros.append(Tiro(self.x, self.y + 25, -10, 0))
+            self.cooldown = 20
+
+        if teclas [pygame.K_DOWN] and self.cooldown == 0:
+            tiros.append(Tiro(self.x + 25, self.y, 0, 10))
+            self.cooldown = 20
+
+        if teclas [pygame.K_RIGHT] and self.cooldown == 0:
+            tiros.append(Tiro(self.x + 50, self.y + 25, 10, 0))
+            self.cooldown = 20
+    
+    
+    
+    
+    
+    def desenhar(self, tela):
+        pygame.draw.rect(tela, (255, 0, 0), (self.x, self.y, 50, 50))
+
+tiros = []
+
+class Tiro():
+    def __init__(self, x, y, dx, dy):
+        self.x = x 
+        self.y = y
+        self.vel = -10
+        self.dx = dx 
+        self.dy = dy
+
+
+    def mover(self):
+        self.x += self.dx
+        self.y += self.dy
+
+    def desenhar(self, tela):
+        pygame.draw.rect(tela, (255, 255, 0), (self.x, self.y, 10, 20))
+    
+
+class Inimigo():
+    def __init__(self, x, y, tipo):
+        self.x = x 
+        self.y = y 
+        self.cooldown = 0 
+        self.vel_x = 2
+        self.direction_timer = random.randint(30, 120)
+        self.tipo = tipo
+    
+
+    def mover(self):
+        self.direction_timer -= 1 
+        
+        if self.direction_timer <= 0:
+            self.vel_x = random.choice([-2, 2])
+            self.direction_timer = random.randint(30, 120) 
+    
+        self.x += self.vel_x
+    
+    
+    def atirar(self, player):
+        
+        if self.cooldown <= 0 and self.pode_atirar(player):
+            tiros_inimigos.append(Tiro_inimigo(self.x + 25, self.y + 50, player.x, player.y))
+            self.cooldown = 60  
+    
+    
+    
+    def pode_atirar(self, player):
+        return abs (self.x - player.x) < 30 
+
+    def seguir_player(self, player):
+
+        if self.x < player.x:
+            self.x += 2
+        elif self.x > player.x:
+            self.x -= 2
+
+    def atualizar(self):
+        if self.cooldown > 0:
+                self.cooldown -= 1
+
+
+    def desenhar(self, tela):
+        pygame.draw.rect(tela, (0, 255, 0), (self.x, self.y, 50, 50))
+    
+
+class Tiro_inimigo():
+        def  __init__(self, x, y, alvo_x, alvo_y):
+            self.x = x 
+            self.y = y
+
+            dx = alvo_x - x 
+            dy = alvo_y - y 
+
+            distancia = math.sqrt(dx**2 + dy**2)
+            self.vel = 5
+            if distancia == 0:
+                distancia = 1
+
+            self.dx = (dx / distancia) * self.vel
+            self.dy = (dy / distancia) *  self.vel
+
+        def mover(self):
+            self.x +=  self.dx 
+            self.y +=  self.dy 
+
+        def desenhar(self, tela):
+            pygame.draw.rect(tela, (255, 0, 255), (self.x, self.y, 10, 10))
+
+class Explosão():
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.tempo = 20
+        self.raio = 10
+
+    def atualizar(self):
+        self.tempo -= 1
+        self.raio += 2
+    
+    def desenhar(self, tela):
+        pygame.draw.circle(tela, (255, 165, 0), (self.x, self.y), self.raio)
+
+
+
+tiros_inimigos = []
+inimigos = []
+player = Player()
+spawn_timer = 0
+explosões = []
+vida = 3 
+fonte = pygame.font.SysFont("Arial", 30)
+fonte_titulo = pygame.font.SysFont("Arial", 60)
+score = 0
+piscar = 0 
+estado ="menu"
+rodando = True
+def resetar_jogo():
+    global tiros, tiros_inimigos, player, explosões, vida, score, inimigos
+
+    tiros = []
+    tiros_inimigos = []
+    inimigos = []
+    explosões = []
+    vida = 3
+    score = 0
+    player = Player()
+
+while rodando:
+    clock.tick(60)
+    spawn_timer += 1
+
+
+    for evento in pygame.event.get():
+        if evento.type == pygame.QUIT:
+            rodando = False
+    if estado == "menu":
+        tela.fill((10, 10, 10))
+        piscar =+ 1
+
+        botao_jogar = pygame.Rect(250, 280, 230, 60)
+        pygame.draw.rect(tela, (50, 50, 200), botao_jogar)
+
+        titulo = fonte_titulo.render("Quadradoxs", True, (255, 255, 0))
+        tela.blit(titulo, (250, 100))
+        
+
+        mouse_pos = pygame.mouse.get_pos()
+        mouse_click = pygame.mouse.get_pressed()
+        
+        if botao_jogar.collidepoint(mouse_pos):
+            pygame.draw.rect(tela, (80, 140, 255), botao_jogar)
+        
+        if mouse_click[0]:
+            resetar_jogo()
+            estado = "jogando"
+
+        texto_botao = fonte.render("JOGAR", True, (255, 255, 255))
+        tela.blit(texto_botao, (330, 295))
+        pygame.display.flip()
+
+    elif estado == "jogando":
+        tela.fill((0, 0, 0))
+        rect_player = pygame.Rect(player.x, player.y, 50, 50)
+        
+    
+#funçoes/ faz os ngc funcionarem#
+
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                rodando = False
+
+        for tiro in tiros[:]:
+            tiro.mover()
+        
+            for inimigo in inimigos[:]:
+                rect_tiro = pygame.Rect(tiro.x, tiro.y, 10, 20)
+                rect_inimigo = pygame.Rect(inimigo.x, inimigo.y, 50, 50)
+            
+
+                if rect_tiro.colliderect(rect_inimigo):
+                    tiros.remove(tiro)
+                    inimigos.remove(inimigo)
+                    explosões.append(Explosão(inimigo.x + 25, inimigo.y + 25))
+                    score += 10 
+                    break
+                if rect_inimigo.colliderect(rect_player):
+                    inimigos.remove(inimigo)
+                    vida -= 1
+                    explosões.append(Explosão(inimigo.x + 25, inimigo.y + 25))
+                    
+                    break
+                
+
+            
+
+        for tiro in tiros_inimigos[:]:
+            tiro.mover()
+            if tiro.y > 600:
+                tiros_inimigos.remove(tiro)
+            
+        for tiro in tiros_inimigos[:]:
+            rect_tiro_inimigo = pygame.Rect(tiro.x, tiro.y, 10, 20)
+            if rect_tiro_inimigo.colliderect(rect_player):
+                tiros_inimigos.remove(tiro)
+                vida -= 1
+                
+    
+        for inimigo in inimigos[:]:
+            
+            inimigo.atualizar()
+        
+            if inimigo.y > 600:
+                inimigos.remove(inimigo)
+                vida -= 1
+                explosões.append(Explosão(inimigo.x + 25, inimigo.y + 25))
+            if inimigo.tipo == "basico":
+                inimigo.mover()
+                inimigo.atirar(player)
+            elif inimigo.tipo == "sniper":
+                inimigo.atirar(player)
+            elif inimigo.tipo == "perserguidor":
+                inimigo.seguir_player(player)
+                inimigo.atirar(player)
+            
+
+
+    
+        for explosao in explosões[:]:
+            explosao.atualizar()
+        
+            if explosao.tempo <= 0:
+                explosões.remove(explosao)
+
+
+
+        if spawn_timer > 150:
+            x = random.randint(0, 750)
+    
+            spawn_timer = 0
+            tipo = random.choice(["basico", "sniper", "perserguidor" ])
+            inimigos.append(Inimigo(x, 0, tipo))
+
+    
+
+#Desenhar/ faz os ngcs aparece na tela#
+
+        for inimigo in inimigos[:]:
+            inimigo.desenhar(tela)
+    
+        player.desenhar(tela)
+
+        for tiro in tiros:
+            tiro.desenhar(tela)
+
+        for tiro in tiros_inimigos:
+            tiro.desenhar(tela)
+
+        for explosao in explosões:
+            explosao.desenhar(tela)
+
+        texto_score = fonte.render(f"score:{score} ", True, (255, 255, 255))
+    
+        tela.blit(texto_score,( 10, 40))
+
+        cor = (0, 255, 0)
+        if vida == 2:
+            cor = (255, 255, 0)
+        elif vida == 1:
+            cor = (255, 0, 0)
+
+        texto_vida = fonte.render(f"Vida: {vida}", True, cor)
+        tela.blit(texto_vida, (10, 10))
+
+    
+
+        pygame.display.flip()
+
+        teclas = pygame.key.get_pressed()
+
+        player.mover(teclas)
+
+        if vida <= 0:
+            estado = "gamerover"
+    
+
+    elif estado == "gamerover":
+        tela.fill((0, 0, 0))
+
+        texto1 = fonte.render("Gamer over", True, (255, 0, 0))
+        tela.blit(texto1, (300, 250))
+
+        mouse_pos = pygame.mouse.get_pos()
+        mouse_click = pygame.mouse.get_pressed()
+
+        botao = pygame.Rect(250, 300, 300, 60)
+        pygame.draw.rect(tela, (5, 255, 61), botao)
+
+
+        if botao.collidepoint(mouse_pos):
+            pygame.draw.rect(tela, (80, 255, 51), botao)
+
+        
+
+        if mouse_click[0]:
+            resetar_jogo()
+            estado = "jogando"
+        texto_botao_reniciar = fonte.render("Reniciar", True, (255, 255, 255))
+        tela.blit(texto_botao_reniciar, (330, 315))
+        pygame.display.flip()
+pygame.quit()
