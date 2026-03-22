@@ -1,7 +1,7 @@
 import pygame
 import random
 import math
-
+from main import dificuldade
 
 class Tiro():
     def __init__(self, x, y, dx, dy):
@@ -19,7 +19,7 @@ class Tiro():
     def desenhar(self, tela):
         pygame.draw.rect(tela, (255, 255, 0), (self.x, self.y, 10, 20))
  
-print(Tiro)
+
 class Player():
     def __init__(self):
         self.x = 100
@@ -89,7 +89,7 @@ class Inimigo():
         
         if self.cooldown <= 0 and self.pode_atirar(player):
             tiros_inimigos.append(Tiro_inimigo(self.x + 25, self.y + 50, player.x, player.y))
-            self.cooldown = 60  
+            self.cooldown = max(20, 60 - dificuldade * 5)
     
     
     

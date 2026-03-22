@@ -21,6 +21,7 @@ player = Player()
 spawn_timer = 0
 explosões = []
 vida = 3 
+dificuldade = 1
 fonte = pygame.font.SysFont("Arial", 30)
 fonte_titulo = pygame.font.SysFont("Arial", 60)
 score = 0
@@ -73,7 +74,7 @@ while rodando:
     elif estado == "jogando":
         tela.fill((0, 0, 0))
         rect_player = pygame.Rect(player.x, player.y, 50, 50)
-        
+        dificuldade = 1 + score // 100
     
 #funçoes/ faz os ngc funcionarem#
 
@@ -146,12 +147,15 @@ while rodando:
 
 
 
-        if spawn_timer > 150:
+        if spawn_timer > max(40, 150 - dificuldade * 10):
             x = random.randint(0, 750)
     
             spawn_timer = 0
             tipo = random.choice(["basico", "sniper", "perseguidor" ])
-            inimigos.append(Inimigo(x, 0, tipo))
+            
+            inimigo = Inimigo(x, 0, tipo)
+            inimigo.vel_x += dificuldade
+            inimigos.append(inimigo)
 
     
 
