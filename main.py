@@ -1,6 +1,7 @@
 import pygame
 import random
 import math
+from classes import Player, Inimigo, Tiro, Tiro_inimigo, Explosão
 
 
 pygame.init()
@@ -12,154 +13,8 @@ clock = pygame.time.Clock()
 
 teclas = pygame.key.get_pressed()
 
-class Player():
-    def __init__(self):
-        self.x = 100
-        self.y = 100
-        self.vel = 5
-        self.cooldown = 0 
-    def mover(self, teclas):
-        if teclas [pygame.K_d]:
-            self.x += self.vel
-        if teclas [pygame.K_a]:
-            self.x -= self.vel
-        if teclas [pygame.K_s]:
-            self.y += self.vel
-        if teclas [pygame.K_w]:
-            self.y -= self.vel
-
-        if self.cooldown > 0:
-            self.cooldown -= 1
-
-
-        if teclas [pygame.K_UP] and self.cooldown == 0:
-            tiros.append(Tiro(self.x + 25, self.y, 0, -10))
-            self.cooldown = 20
-
-        if teclas [pygame.K_LEFT] and self.cooldown == 0:
-            tiros.append(Tiro(self.x, self.y + 25, -10, 0))
-            self.cooldown = 20
-
-        if teclas [pygame.K_DOWN] and self.cooldown == 0:
-            tiros.append(Tiro(self.x + 25, self.y, 0, 10))
-            self.cooldown = 20
-
-        if teclas [pygame.K_RIGHT] and self.cooldown == 0:
-            tiros.append(Tiro(self.x + 50, self.y + 25, 10, 0))
-            self.cooldown = 20
-    
-    
-    
-    
-    
-    def desenhar(self, tela):
-        pygame.draw.rect(tela, (255, 0, 0), (self.x, self.y, 50, 50))
 
 tiros = []
-
-class Tiro():
-    def __init__(self, x, y, dx, dy):
-        self.x = x 
-        self.y = y
-        self.vel = -10
-        self.dx = dx 
-        self.dy = dy
-
-
-    def mover(self):
-        self.x += self.dx
-        self.y += self.dy
-
-    def desenhar(self, tela):
-        pygame.draw.rect(tela, (255, 255, 0), (self.x, self.y, 10, 20))
-    
-
-class Inimigo():
-    def __init__(self, x, y, tipo):
-        self.x = x 
-        self.y = y 
-        self.cooldown = 0 
-        self.vel_x = 2
-        self.direction_timer = random.randint(30, 120)
-        self.tipo = tipo
-    
-
-    def mover(self):
-        self.direction_timer -= 1 
-        
-        if self.direction_timer <= 0:
-            self.vel_x = random.choice([-2, 2])
-            self.direction_timer = random.randint(30, 120) 
-    
-        self.x += self.vel_x
-    
-    
-    def atirar(self, player):
-        
-        if self.cooldown <= 0 and self.pode_atirar(player):
-            tiros_inimigos.append(Tiro_inimigo(self.x + 25, self.y + 50, player.x, player.y))
-            self.cooldown = 60  
-    
-    
-    
-    def pode_atirar(self, player):
-        return abs (self.x - player.x) < 30 
-
-    def seguir_player(self, player):
-
-        if self.x < player.x:
-            self.x += 2
-        elif self.x > player.x:
-            self.x -= 2
-
-    def atualizar(self):
-        if self.cooldown > 0:
-                self.cooldown -= 1
-
-
-    def desenhar(self, tela):
-        pygame.draw.rect(tela, (0, 255, 0), (self.x, self.y, 50, 50))
-    
-
-class Tiro_inimigo():
-        def  __init__(self, x, y, alvo_x, alvo_y):
-            self.x = x 
-            self.y = y
-
-            dx = alvo_x - x 
-            dy = alvo_y - y 
-
-            distancia = math.sqrt(dx**2 + dy**2)
-            self.vel = 5
-            if distancia == 0:
-                distancia = 1
-
-            self.dx = (dx / distancia) * self.vel
-            self.dy = (dy / distancia) *  self.vel
-
-        def mover(self):
-            self.x +=  self.dx 
-            self.y +=  self.dy 
-
-        def desenhar(self, tela):
-            pygame.draw.rect(tela, (255, 0, 255), (self.x, self.y, 10, 10))
-
-class Explosão():
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-        self.tempo = 20
-        self.raio = 10
-
-    def atualizar(self):
-        self.tempo -= 1
-        self.raio += 2
-    
-    def desenhar(self, tela):
-        pygame.draw.circle(tela, (255, 165, 0), (self.x, self.y), self.raio)
-
-
-
 tiros_inimigos = []
 inimigos = []
 player = Player()
@@ -174,7 +29,6 @@ estado ="menu"
 rodando = True
 def resetar_jogo():
     global tiros, tiros_inimigos, player, explosões, vida, score, inimigos
-
     tiros = []
     tiros_inimigos = []
     inimigos = []
@@ -231,7 +85,7 @@ while rodando:
             tiro.mover()
         
             for inimigo in inimigos[:]:
-                rect_tiro = pygame.Rect(tiro.x, tiro.y, 10, 20)
+                rect_tiro= pygame.Rect(tiro.x, tiro.y, 10, 20)
                 rect_inimigo = pygame.Rect(inimigo.x, inimigo.y, 50, 50)
             
 
@@ -266,6 +120,7 @@ while rodando:
         for inimigo in inimigos[:]:
             
             inimigo.atualizar()
+            inimigo.y += 1 
         
             if inimigo.y > 600:
                 inimigos.remove(inimigo)
@@ -273,12 +128,12 @@ while rodando:
                 explosões.append(Explosão(inimigo.x + 25, inimigo.y + 25))
             if inimigo.tipo == "basico":
                 inimigo.mover()
-                inimigo.atirar(player)
+                inimigo.atirar(player, tiros_inimigos)
             elif inimigo.tipo == "sniper":
-                inimigo.atirar(player)
-            elif inimigo.tipo == "perserguidor":
+                inimigo.atirar(player, tiros_inimigos)
+            elif inimigo.tipo == "perseguidor":
                 inimigo.seguir_player(player)
-                inimigo.atirar(player)
+                inimigo.atirar(player, tiros_inimigos)
             
 
 
@@ -295,7 +150,7 @@ while rodando:
             x = random.randint(0, 750)
     
             spawn_timer = 0
-            tipo = random.choice(["basico", "sniper", "perserguidor" ])
+            tipo = random.choice(["basico", "sniper", "perseguidor" ])
             inimigos.append(Inimigo(x, 0, tipo))
 
     
@@ -335,7 +190,7 @@ while rodando:
 
         teclas = pygame.key.get_pressed()
 
-        player.mover(teclas)
+        player.mover(teclas, tiros)
 
         if vida <= 0:
             estado = "gamerover"
