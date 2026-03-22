@@ -1,8 +1,7 @@
 import pygame
 import random
 import math
-from classes import Player, Inimigo, Tiro, Tiro_inimigo, Explosão
-
+from classes import Player, Inimigo, Tiro, Tiro_inimigo, Explosão, Power_ups
 
 pygame.init()
 
@@ -11,7 +10,7 @@ pygame.display.set_caption("Teste")
 
 clock = pygame.time.Clock()
 
-teclas = pygame.key.get_pressed()
+
 
 
 tiros = []
@@ -20,22 +19,25 @@ inimigos = []
 player = Player()
 spawn_timer = 0
 explosões = []
+powerups = []
 vida = 3 
 dificuldade = 1
 fonte = pygame.font.SysFont("Arial", 30)
 fonte_titulo = pygame.font.SysFont("Arial", 60)
 score = 0
 piscar = 0 
-estado ="menu"
+estado = "menu"
 rodando = True
 def resetar_jogo():
-    global tiros, tiros_inimigos, player, explosões, vida, score, inimigos
+    global tiros, tiros_inimigos, player, explosões, vida, score, inimigos, dificuldade, powerups
     tiros = []
     tiros_inimigos = []
     inimigos = []
     explosões = []
     vida = 3
     score = 0
+    dificuldade = 1
+    powerups = []
     player = Player()
 
 while rodando:
@@ -75,6 +77,7 @@ while rodando:
         tela.fill((0, 0, 0))
         rect_player = pygame.Rect(player.x, player.y, 50, 50)
         dificuldade = 1 + score // 100
+        teclas = pygame.key.get_pressed()
     
 #funçoes/ faz os ngc funcionarem#
 
@@ -94,7 +97,11 @@ while rodando:
                     tiros.remove(tiro)
                     inimigos.remove(inimigo)
                     explosões.append(Explosão(inimigo.x + 25, inimigo.y + 25))
-                    score += 10 
+                    score += 10
+                    
+                    if random.random() < 0.2:
+                        tipo = random.choice(["Vida", "Tiro"])
+                        powerups.append(Power_ups(inimigo.x, inimigo.y, tipo))
                     break
                 if rect_inimigo.colliderect(rect_player):
                     inimigos.remove(inimigo)
@@ -102,6 +109,7 @@ while rodando:
                     explosões.append(Explosão(inimigo.x + 25, inimigo.y + 25))
                     
                     break
+                
                 
 
             
@@ -129,12 +137,12 @@ while rodando:
                 explosões.append(Explosão(inimigo.x + 25, inimigo.y + 25))
             if inimigo.tipo == "basico":
                 inimigo.mover()
-                inimigo.atirar(player, tiros_inimigos)
+                inimigo.atirar(player, tiros_inimigos, dificuldade)
             elif inimigo.tipo == "sniper":
-                inimigo.atirar(player, tiros_inimigos)
+                inimigo.atirar(player, tiros_inimigos, dificuldade)
             elif inimigo.tipo == "perseguidor":
                 inimigo.seguir_player(player)
-                inimigo.atirar(player, tiros_inimigos)
+                inimigo.atirar(player, tiros_inimigos, dificuldade)
             
 
 
@@ -157,7 +165,32 @@ while rodando:
             inimigo.vel_x += dificuldade
             inimigos.append(inimigo)
 
-    
+
+        
+        for p in powerups[:]:
+            p.mover()
+            
+            if p.y > 600:
+                powerups.remove(p)
+
+
+
+        for p in powerups[:]:
+            rect_p = pygame.Rect(p.x, p.y, 20, 20)
+            p.mover()
+            if rect_p.colliderect(rect_player):
+                
+                if tipo == "Vida":
+                    vida += 1 
+                
+                elif tipo == "Tiro":
+                    player.cooldown = max(5, player.cooldown - 5)
+                powerups.remove(p)
+                
+
+
+
+
 
 #Desenhar/ faz os ngcs aparece na tela#
 
@@ -174,6 +207,10 @@ while rodando:
 
         for explosao in explosões:
             explosao.desenhar(tela)
+
+        for p in powerups:
+            p.desenhar(tela)
+
 
         texto_score = fonte.render(f"score:{score} ", True, (255, 255, 255))
     

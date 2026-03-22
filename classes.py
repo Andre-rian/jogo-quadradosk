@@ -1,7 +1,6 @@
 import pygame
 import random
 import math
-from main import dificuldade
 
 class Tiro():
     def __init__(self, x, y, dx, dy):
@@ -85,7 +84,7 @@ class Inimigo():
         self.x += self.vel_x
     
     
-    def atirar(self, player, tiros_inimigos):
+    def atirar(self, player, tiros_inimigos, dificuldade):
         
         if self.cooldown <= 0 and self.pode_atirar(player):
             tiros_inimigos.append(Tiro_inimigo(self.x + 25, self.y + 50, player.x, player.y))
@@ -149,3 +148,22 @@ class Explosão():
     def desenhar(self, tela):
         pygame.draw.circle(tela, (255, 165, 0), (self.x, self.y), self.raio)
 
+class Power_ups():
+    def __init__(self, x, y, tipo):
+        self.x = x
+        self.y = y
+        self.tipo = tipo
+        self.vel = 0.5 
+
+    def mover(self):
+        self.y += self.vel
+        
+    def desenhar(self, tela):
+        cor = (0, 255, 0)
+
+        if self.tipo == "Vida":
+            cor = (0, 255, 0)
+        elif self.tipo == "Tiro":
+            cor = (0, 0, 255)
+
+        pygame.draw.rect(tela, cor, (self.x, self.y, 20, 20))
