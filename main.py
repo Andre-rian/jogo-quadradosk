@@ -28,13 +28,14 @@ fonte = pygame.font.SysFont("Arial", 30)
 fonte_titulo = pygame.font.SysFont("Arial", 60)
 score = 0
 nome = ""
+senha = ""
 digitando_nome = True
+digitando_senha = False
 piscar = 0 
 estado = "menu"
 rodando = True
 def resetar_jogo():
-    global tiros, tiros_inimigos, player, explosões, vida, score, inimigos, dificuldade, powerups, score_salvo, nome, digitando_nome
-    tiros = []
+    global tiros, tiros_inimigos, player, explosões, vida, score, inimigos, dificuldade, powerups, score_salvo, nome, digitando_nome, senha, digitando_senha
     tiros_inimigos = []
     inimigos = []
     explosões = []
@@ -55,19 +56,46 @@ while rodando:
             if evento.type == pygame.QUIT:
                 rodando = False
 
-            if evento.type == pygame.KEYDOWN and digitando_nome:
-                if evento.key == pygame.K_BACKSPACE:
-                    nome = nome[:-1]
+            if evento.type == pygame.KEYDOWN:
+            
+                if digitando_nome:
+                    if evento.key == pygame.K_BACKSPACE:
+                        nome = nome[:-1]
+                        
 
-                elif evento.key == pygame.K_RETURN:
-                    if nome != "":
-                        digitando_nome = False
-                        resetar_jogo()
-                        estado = "jogando"
+                    elif evento.key == pygame.K_RETURN:
+                        if nome != "":
+                            digitando_nome = False
+                            digitando_senha = True
 
-                else:
-                    if len(nome) < 10:
-                        nome += evento.unicode
+                    else:
+                        if len(nome) < 10:
+                            nome += evento.unicode
+                elif digitando_senha:
+                    if evento.key == pygame.K_BACKSPACE:
+                        senha = senha[:-1]
+
+                    elif evento.key == pygame.K_RETURN:
+                        if nome != "":
+                            resultado = db.login(nome, senha)
+
+                            if resultado == "criado":
+                                print("Conta criada")
+
+                                estado = "jogando"
+
+                            elif resultado == "login":
+                                print("Login ok")
+                            
+                                estado = "jogando"
+
+
+                            elif resultado == "erro":
+                                print("Senha errada")
+                    else:
+                        if len(senha) < 10:
+                            senha += evento.unicode
+
 
         tela.fill((10, 10, 10))
         piscar += 1
@@ -75,7 +103,12 @@ while rodando:
         texto_nick = fonte.render(f"Nick: {nome}", True, (255, 255, 255))
         tela.blit(texto_nick, (250, 150))
 
-        botao_jogar = pygame.Rect(250, 280, 230, 60)
+        senha_oculta = "*" * len(senha)
+        texto_senha = fonte.render(f"Senha: {senha_oculta}", True, (255, 255, 255))
+        tela.blit(texto_senha, (250, 260))
+
+
+        botao_jogar = pygame.Rect(250, 70, 230, 60)
         pygame.draw.rect(tela, (50, 50, 200), botao_jogar)
 
         titulo = fonte_titulo.render("Quadradoxs", True, (255, 255, 0))

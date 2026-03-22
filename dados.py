@@ -11,6 +11,7 @@ class DatabaseManager:
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS players (
                     nick TEXT PRIMARY KEY,
+                    senha TEXT
                     max_score INTEGER
                 )
             ''')
@@ -45,3 +46,26 @@ class DatabaseManager:
                 "SELECT nick, max_score FROM players ORDER BY max_score DESC LIMIT ?", (limit,)
             )
             return cursor.fetchall()
+        
+
+
+
+    def login(self, nick, senha):
+        connection = sqlite3.connect(self.db_name)
+        cursor = connection.cursor()
+
+        cursor.execute("SELECT senha FROM players WHERE nick = ?", (nick))
+        row = cursor.fetchone()
+
+        if row is None:
+            cursor.execute("INSERT INTO players (nick, senha, max_score) VALUES (?, ?, ?)", (nick, senha, 0 ))
+            connection.commit()
+            connection.close()
+            return "criado"
+        else:
+            if row[0] == senha:
+                connection.close()
+                return "login"
+            else:
+                connection.close()
+                return "erro"
