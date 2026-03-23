@@ -138,6 +138,62 @@ while rodando:
 
         pygame.display.flip()
 
+    elif estado == "ranking":
+
+        tela.fill((10, 10, 10))
+
+        titulo = fonte_titulo.render("RANKING", True, (255, 255, 0))
+        tela.blit(titulo, 250, 50)
+
+        top = db.get_top_scores()
+
+        y = 150
+        for nick, pontos in top:
+            texto = fonte.render(f" {nick}  -- {pontos}", True, (255, 255, 0))
+            tela.blit(texto, (300, y))
+            y += 40 
+
+        botao_voltar = pygame.Rect(250, 450, 300, 60)
+
+        mouse_pos = pygame.mouse.get_pos()
+        
+        cor = (200, 0, 0)
+        if botao_voltar.collidepoint(mouse_pos):
+            cor = (255, 0, 0)
+
+        pygame.draw.rect(tela, cor, botao_voltar)
+
+        texto = fonte.render("Voltar", True, (255, 255, 255))
+        tela.blit(texto, (350, 465))
+
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                rodando = False
+
+            if evento.type == pygame.MOUSEBUTTONDOWN:
+                if botao_voltar.collidepoint(evento.pos):
+                    estado = "menu"
+
+        pygame.display.flip()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     elif estado == "jogando":
 
         tela.fill((0, 0, 0))
@@ -340,12 +396,7 @@ while rodando:
         texto_botao_menu = fonte.render("Ir para o menu", True, (0, 0, 0))
         tela.blit(texto_botao_menu, (botao_menu.x + 110, botao_menu.y + 15))
 
-        y = 200
-        for nick, pontos in top:
-            texto = fonte.render(f'{nick}  = {pontos}', True, (255, 255, 255))
-            tela.blit(texto, (300, y))
-            y += 40
-
+        
         pygame.display.flip()
 
 pygame.quit()
