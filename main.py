@@ -117,12 +117,15 @@ while rodando:
         mouse_pos = pygame.mouse.get_pos()
         mouse_click = pygame.mouse.get_pressed()
 
+        if evento.type == pygame.MOUSEBUTTONDOWN:
+            if botao_jogar.collidepoint(evento.pos):
+                resetar_jogo()
+                estado = "jogando"
+
+
         if botao_jogar.collidepoint(mouse_pos):
             pygame.draw.rect(tela, (80, 140, 255), botao_jogar)
 
-        if mouse_click[0]:
-            resetar_jogo()
-            estado = "jogando"
 
         texto_botao = fonte.render("JOGAR", True, (255, 255, 255))
         tela.blit(texto_botao, (330, 295))
@@ -278,10 +281,10 @@ while rodando:
         mouse_click = pygame.mouse.get_pressed()
 
         botao_reniciar = pygame.Rect(250, 300, 300, 60)
-        pygame.draw.rect(tela, (5, 255, 61), botao_reniciar)
+
 
         botao_menu = pygame.Rect(250, 380, 300, 60)
-        pygame.draw.rect(tela, (5, 152, 20), botao_menu)
+
 
         if not score_salvo:
             db.save_score(nome, score)
@@ -289,27 +292,47 @@ while rodando:
 
         top = db.get_top_scores()
 
-        if botao_reniciar.collidepoint(mouse_pos):
-            pygame.draw.rect(tela, (80, 255, 51), botao_reniciar)
 
-        if mouse_click[0]:
-            if botao_reniciar.collidepoint(mouse_pos):
-                resetar_jogo()
-                estado = "jogando"
+        
 
-            elif botao_menu.collidepoint(mouse_pos):
-                estado = "menu"
-                nome = ""
-                digitando_nome = True
-                score_salvo = False
+
+        cor_menu = (200, 200, 0)
+        if botao_menu.collidepoint(mouse_pos):
+            cor_menu = (255, 255, 0)
+        pygame.draw.rect(tela, cor_menu, botao_menu)
+
+
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                rodando = False
+
+            if evento.type == pygame.MOUSEBUTTONDOWN:
+                if botao_reniciar.collidepoint(evento.pos):
+                    resetar_jogo()
+                    estado = "jogando"
                 
+                elif botao_menu.collidepoint(evento.pos):
+                    nome = ""
+                    digitando_nome = True
+                    estado = "menu"
+                    pygame.event.clear()
 
-        texto_botao_reniciar = fonte.render("Reniciar", True, (255, 255, 255))
-        tela.blit(texto_botao_reniciar, (330, 315))
+
+        mouse_pos = pygame.mouse.get_pos()
+        cor_reniciar = (0, 200, 0)
+        if botao_reniciar.collidepoint(mouse_pos):
+            cor_reniciar = (0, 255, 0)
+
+        pygame.draw.rect(tela, cor_reniciar, botao_reniciar )
 
 
-        texto_botao_menu = fonte.render("Ir para o menu", True, (255, 255, 255))
-        tela.blit(texto_botao_menu, (380, 315))
+
+        texto_botao_reniciar = fonte.render("Reniciar", True, (0, 0, 0))
+        tela.blit(texto_botao_reniciar, (botao_reniciar.x + 90, botao_reniciar.y + 15))
+
+
+        texto_botao_menu = fonte.render("Ir para o menu", True, (0, 0, 0))
+        tela.blit(texto_botao_menu, (botao_menu.x + 110, botao_menu.y + 15))
 
         y = 200
         for nick, pontos in top:
