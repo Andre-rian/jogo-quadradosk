@@ -82,11 +82,13 @@ while rodando:
                             if resultado == "criado":
                                 print("Conta criada")
 
+                                resetar_jogo()
                                 estado = "jogando"
 
                             elif resultado == "login":
                                 print("Login ok")
-                            
+
+                                resetar_jogo()
                                 estado = "jogando"
 
 
@@ -96,6 +98,10 @@ while rodando:
                         if len(senha) < 10:
                             senha += evento.unicode
 
+            if evento.type == pygame.MOUSEBUTTONDOWN:
+                if botao_jogar.collidepoint(evento.pos):
+                    resetar_jogo()
+                    estado = "jogando"
 
         tela.fill((10, 10, 10))
         piscar += 1
@@ -105,30 +111,30 @@ while rodando:
 
         senha_oculta = "*" * len(senha)
         texto_senha = fonte.render(f"Senha: {senha_oculta}", True, (255, 255, 255))
-        tela.blit(texto_senha, (250, 260))
+        tela.blit(texto_senha, (250, 200))
 
-
-        botao_jogar = pygame.Rect(250, 70, 230, 60)
-        pygame.draw.rect(tela, (50, 50, 200), botao_jogar)
 
         titulo = fonte_titulo.render("Quadradoxs", True, (255, 255, 0))
-        tela.blit(titulo, (250, 100))
-
         mouse_pos = pygame.mouse.get_pos()
+        
+        tela.blit(titulo, (250, 60))
+
+        botao_jogar = pygame.Rect(250, 300, 300, 60)
+        
         mouse_click = pygame.mouse.get_pressed()
 
-        if evento.type == pygame.MOUSEBUTTONDOWN:
-            if botao_jogar.collidepoint(evento.pos):
-                resetar_jogo()
-                estado = "jogando"
 
-
+        cor = (50, 50, 200)
         if botao_jogar.collidepoint(mouse_pos):
-            pygame.draw.rect(tela, (80, 140, 255), botao_jogar)
+            cor = (80, 140, 255)
+
+
+        pygame.draw.rect(tela, cor, botao_jogar)
+
 
 
         texto_botao = fonte.render("JOGAR", True, (255, 255, 255))
-        tela.blit(texto_botao, (330, 295))
+        tela.blit(texto_botao, (340, 315))
 
         pygame.display.flip()
 
