@@ -167,3 +167,17 @@ class Power_ups():
             cor = (0, 0, 255)
 
         pygame.draw.rect(tela, cor, (self.x, self.y, 20, 20))
+
+
+class Botao():
+    def __init__(self, x , y, w, h, texto):
+        self.rect = pygame.Rect(x, y, w, h)
+        self.texto = texto
+
+
+    def desenhar(self, tela, fonte):
+        mouse_pos = pygame.mouse.get_pos()
+
+
+        cor = (100, 100, 100)
+        if self.rect.collidepoint(mouse_pos):
