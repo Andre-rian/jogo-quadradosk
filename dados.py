@@ -11,7 +11,7 @@ class DatabaseManager:
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS players (
                     nick TEXT PRIMARY KEY,
-                    senha TEXT
+                    senha TEXT,
                     max_score INTEGER
                 )
             ''')
@@ -54,7 +54,7 @@ class DatabaseManager:
         connection = sqlite3.connect(self.db_name)
         cursor = connection.cursor()
 
-        cursor.execute("SELECT senha FROM players WHERE nick = ?", (nick))
+        cursor.execute("SELECT senha FROM players WHERE nick = ?", (nick,))
         row = cursor.fetchone()
 
         if row is None:
