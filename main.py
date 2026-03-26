@@ -1,7 +1,7 @@
 import pygame
 import random
 import math
-from classes import Player, Inimigo, Tiro, Tiro_inimigo, Explosão, Power_ups
+from classes import Player, Inimigo, Tiro, Tiro_inimigo, Explosão, Power_ups, Botao
 from dados import DatabaseManager
 
 pygame.init()
@@ -50,18 +50,19 @@ while rodando:
     clock.tick(60)
     spawn_timer += 1
 
+    # ================= MENU =================
     if estado == "menu":
+
+        botao_jogar = Botao(250, 300, 300, 60, "JOGAR")
 
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
                 rodando = False
 
             if evento.type == pygame.KEYDOWN:
-            
                 if digitando_nome:
                     if evento.key == pygame.K_BACKSPACE:
                         nome = nome[:-1]
-                        
 
                     elif evento.key == pygame.K_RETURN:
                         if nome != "":
@@ -71,6 +72,7 @@ while rodando:
                     else:
                         if len(nome) < 10:
                             nome += evento.unicode
+
                 elif digitando_senha:
                     if evento.key == pygame.K_BACKSPACE:
                         senha = senha[:-1]
@@ -79,32 +81,22 @@ while rodando:
                         if nome != "":
                             resultado = db.login(nome, senha)
 
-                            if resultado == "criado":
-                                print("Conta criada")
-
+                            if resultado in ["criado", "login"]:
                                 resetar_jogo()
                                 estado = "jogando"
-
-                            elif resultado == "login":
-                                print("Login ok")
-
-                                resetar_jogo()
-                                estado = "jogando"
-
 
                             elif resultado == "erro":
                                 print("Senha errada")
+
                     else:
                         if len(senha) < 10:
                             senha += evento.unicode
 
-            if evento.type == pygame.MOUSEBUTTONDOWN:
-                if botao_jogar.collidepoint(evento.pos):
-                    resetar_jogo()
-                    estado = "jogando"
+            if botao_jogar.clicado(evento):
+                resetar_jogo()
+                estado = "jogando"
 
         tela.fill((10, 10, 10))
-        piscar += 1
 
         texto_nick = fonte.render(f"Nick: {nome}", True, (255, 255, 255))
         tela.blit(texto_nick, (250, 150))
@@ -113,91 +105,48 @@ while rodando:
         texto_senha = fonte.render(f"Senha: {senha_oculta}", True, (255, 255, 255))
         tela.blit(texto_senha, (250, 200))
 
-
         titulo = fonte_titulo.render("Quadradoxs", True, (255, 255, 0))
-        mouse_pos = pygame.mouse.get_pos()
-        
         tela.blit(titulo, (250, 60))
 
-        botao_jogar = pygame.Rect(250, 300, 300, 60)
-        
-        mouse_click = pygame.mouse.get_pressed()
-
-
-        cor = (50, 50, 200)
-        if botao_jogar.collidepoint(mouse_pos):
-            cor = (80, 140, 255)
-
-
-        pygame.draw.rect(tela, cor, botao_jogar)
-
-
-
-        texto_botao = fonte.render("JOGAR", True, (255, 255, 255))
-        tela.blit(texto_botao, (340, 315))
+        botao_jogar.desenhar(tela, fonte)
 
         pygame.display.flip()
 
+    # ================= RANKING =================
     elif estado == "ranking":
+
+        botao_voltar = Botao(250, 450, 300, 60, "VOLTAR")
 
         tela.fill((10, 10, 10))
 
         titulo = fonte_titulo.render("RANKING", True, (255, 255, 0))
-        tela.blit(titulo, 250, 50)
+        tela.blit(titulo, (250, 50))
 
         top = db.get_top_scores()
 
         y = 150
         for nick, pontos in top:
-            texto = fonte.render(f" {nick}  -- {pontos}", True, (255, 255, 0))
+            texto = fonte.render(f"{nick} -- {pontos}", True, (255, 255, 0))
             tela.blit(texto, (300, y))
-            y += 40 
-
-        botao_voltar = pygame.Rect(250, 450, 300, 60)
-
-        mouse_pos = pygame.mouse.get_pos()
-        
-        cor = (200, 0, 0)
-        if botao_voltar.collidepoint(mouse_pos):
-            cor = (255, 0, 0)
-
-        pygame.draw.rect(tela, cor, botao_voltar)
-
-        texto = fonte.render("Voltar", True, (255, 255, 255))
-        tela.blit(texto, (350, 465))
+            y += 40
 
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
                 rodando = False
 
-            if evento.type == pygame.MOUSEBUTTONDOWN:
-                if botao_voltar.collidepoint(evento.pos):
-                    estado = "menu"
+            if botao_voltar.clicado(evento):
+                estado = "menu"
+
+        botao_voltar.desenhar(tela, fonte)
 
         pygame.display.flip()
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    # ================= JOGO =================
     elif estado == "jogando":
 
         tela.fill((0, 0, 0))
         rect_player = pygame.Rect(player.x, player.y, 50, 50)
+
         dificuldade = 1 + score // 100
         teclas = pygame.key.get_pressed()
         score_salvo = False
@@ -206,6 +155,7 @@ while rodando:
             if evento.type == pygame.QUIT:
                 rodando = False
 
+        # tiros player
         for tiro in tiros[:]:
             tiro.mover()
 
@@ -230,19 +180,20 @@ while rodando:
                     explosões.append(Explosão(inimigo.x + 25, inimigo.y + 25))
                     break
 
+        # tiros inimigos
         for tiro in tiros_inimigos[:]:
             tiro.mover()
             if tiro.y > 600:
                 tiros_inimigos.remove(tiro)
 
         for tiro in tiros_inimigos[:]:
-            rect_tiro_inimigo = pygame.Rect(tiro.x, tiro.y, 10, 20)
-            if rect_tiro_inimigo.colliderect(rect_player):
+            rect_tiro = pygame.Rect(tiro.x, tiro.y, 10, 20)
+            if rect_tiro.colliderect(rect_player):
                 tiros_inimigos.remove(tiro)
                 vida -= 1
 
+        # inimigos
         for inimigo in inimigos[:]:
-
             inimigo.atualizar()
             inimigo.y += 1
 
@@ -262,12 +213,13 @@ while rodando:
                 inimigo.seguir_player(player)
                 inimigo.atirar(player, tiros_inimigos, dificuldade)
 
+        # explosões
         for explosao in explosões[:]:
             explosao.atualizar()
-
             if explosao.tempo <= 0:
                 explosões.remove(explosao)
 
+        # spawn
         if spawn_timer > max(40, 150 - dificuldade * 10):
             x = random.randint(0, 750)
             spawn_timer = 0
@@ -277,6 +229,7 @@ while rodando:
             inimigo.vel_x += dificuldade
             inimigos.append(inimigo)
 
+        # powerups
         for p in powerups[:]:
             if p.y > 600:
                 powerups.remove(p)
@@ -286,15 +239,14 @@ while rodando:
             p.mover()
 
             if rect_p.colliderect(rect_player):
-
                 if p.tipo == "Vida":
                     vida += 1
-
                 elif p.tipo == "Tiro":
                     player.cooldown = max(5, player.cooldown - 5)
 
                 powerups.remove(p)
 
+        # desenhar tudo
         for inimigo in inimigos:
             inimigo.desenhar(tela)
 
@@ -312,7 +264,7 @@ while rodando:
         for p in powerups:
             p.desenhar(tela)
 
-        texto_score = fonte.render(f"score:{score} ", True, (255, 255, 255))
+        texto_score = fonte.render(f"score: {score}", True, (255, 255, 255))
         tela.blit(texto_score, (10, 40))
 
         cor = (0, 255, 0)
@@ -326,77 +278,45 @@ while rodando:
 
         pygame.display.flip()
 
-        teclas = pygame.key.get_pressed()
         player.mover(teclas, tiros)
 
         if vida <= 0:
             estado = "gamerover"
 
+    # ================= GAME OVER =================
     elif estado == "gamerover":
+
+        botao_reniciar = Botao(250, 300, 300, 60, "REINICIAR")
+        botao_menu = Botao(250, 380, 300, 60, "MENU")
 
         tela.fill((0, 0, 0))
 
-        texto1 = fonte.render("Gamer over", True, (255, 0, 0))
-        tela.blit(texto1, (300, 250))
-
-        mouse_pos = pygame.mouse.get_pos()
-        mouse_click = pygame.mouse.get_pressed()
-
-        botao_reniciar = pygame.Rect(250, 300, 300, 60)
-
-
-        botao_menu = pygame.Rect(250, 380, 300, 60)
-
+        texto = fonte.render("Game Over", True, (255, 0, 0))
+        tela.blit(texto, (300, 250))
 
         if not score_salvo:
             db.save_score(nome, score)
             score_salvo = True
 
-        top = db.get_top_scores()
-
-
-        
-
-
-        cor_menu = (200, 200, 0)
-        if botao_menu.collidepoint(mouse_pos):
-            cor_menu = (255, 255, 0)
-        pygame.draw.rect(tela, cor_menu, botao_menu)
-
-
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
                 rodando = False
 
-            if evento.type == pygame.MOUSEBUTTONDOWN:
-                if botao_reniciar.collidepoint(evento.pos):
-                    resetar_jogo()
-                    estado = "jogando"
-                
-                elif botao_menu.collidepoint(evento.pos):
-                    nome = ""
-                    digitando_nome = True
-                    estado = "menu"
-                    pygame.event.clear()
+            if botao_reniciar.clicado(evento):
+                resetar_jogo()
+                estado = "jogando"
 
+            elif botao_menu.clicado(evento):
+                nome = ""
+                senha = ""
+                digitando_nome = True
+                digitando_senha = False
+                estado = "menu"
+                pygame.event.clear()
 
-        mouse_pos = pygame.mouse.get_pos()
-        cor_reniciar = (0, 200, 0)
-        if botao_reniciar.collidepoint(mouse_pos):
-            cor_reniciar = (0, 255, 0)
+        botao_reniciar.desenhar(tela, fonte)
+        botao_menu.desenhar(tela, fonte)
 
-        pygame.draw.rect(tela, cor_reniciar, botao_reniciar )
-
-
-
-        texto_botao_reniciar = fonte.render("Reniciar", True, (0, 0, 0))
-        tela.blit(texto_botao_reniciar, (botao_reniciar.x + 90, botao_reniciar.y + 15))
-
-
-        texto_botao_menu = fonte.render("Ir para o menu", True, (0, 0, 0))
-        tela.blit(texto_botao_menu, (botao_menu.x + 110, botao_menu.y + 15))
-
-        
         pygame.display.flip()
 
 pygame.quit()

@@ -174,10 +174,24 @@ class Botao():
         self.rect = pygame.Rect(x, y, w, h)
         self.texto = texto
 
-
     def desenhar(self, tela, fonte):
         mouse_pos = pygame.mouse.get_pos()
 
-
         cor = (100, 100, 100)
         if self.rect.collidepoint(mouse_pos):
+            cor = (150, 150, 150)
+
+        pygame.draw.rect(tela, cor, self.rect)
+
+        texto_render = fonte.render(self.texto, True, (0, 0, 0))
+
+        tela.blit(
+            texto_render,
+            (
+                self.rect.x + (self.rect.width // 2 - texto_render.get_width() // 2),
+                self.rect.y + (self.rect.height // 2 - texto_render.get_height() // 2)
+            )
+        )
+
+    def clicado(self, evento):
+        return evento.type == pygame.MOUSEBUTTONDOWN and self.rect.collidepoint(evento.pos)
