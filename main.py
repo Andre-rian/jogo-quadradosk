@@ -247,7 +247,7 @@ while rodando:
                     score += 10
 
                     if random.random() < 0.2:
-                        tipo = random.choice(["Vida", "Tiro"])
+                        tipo = random.choice(["Vida", "Tiro", "Velocidade", "Multishot"])
                         powerups.append(Power_ups(inimigo.x, inimigo.y, tipo))
                     break
 
@@ -324,8 +324,15 @@ while rodando:
             if rect_p.colliderect(rect_player):
                 if p.tipo == "Vida":
                     vida += 1
+
+                elif p.tipo == "Velocidade":
+                    player.vel += 1
+
                 elif p.tipo == "Tiro":
                     player.cooldown = max(5, player.cooldown - 5)
+
+                elif p.tipo == "Multishot":
+                    player.multishot = min(3, player.multishot + 1)
 
                 powerups.remove(p)
 

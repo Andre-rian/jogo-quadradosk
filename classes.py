@@ -26,6 +26,7 @@ class Player():
         self.vel = 5
         self.cooldown = 0 
         self.dano_timer = 0
+        self.multishot = 1
     def mover(self, teclas, tiros):
         if teclas [pygame.K_d]:
             self.x += self.vel
@@ -55,7 +56,20 @@ class Player():
         if teclas [pygame.K_RIGHT] and self.cooldown == 0:
             tiros.append(Tiro(self.x + 50, self.y + 25, 10, 0))
             self.cooldown = 20
-    
+        if teclas [pygame.K_UP] and self.cooldown == 0:
+            
+            if self.multishot == 1:
+                tiros.append(Tiro(self.x + 25, self.y, 0, -10))
+
+            elif self.multishot == 2:
+                tiros.append(Tiro(self.x + 15, self.y, 0, -10))
+                tiros.append(Tiro(self.x + 35, self.y, 0, -10))
+
+            elif self.multishot == 3:
+                tiros.append(Tiro(self.x + 10, self.y, -2, -10))
+                tiros.append(Tiro(self.x + 25, self.y, 0, -10))
+                tiros.append(Tiro(self.x + 40, self.y, 2, -10))
+            self.cooldown = 20
     
     
     
@@ -187,6 +201,12 @@ class Power_ups():
             cor = (0, 255, 0)
         elif self.tipo == "Tiro":
             cor = (0, 0, 255)
+        elif self.tipo == "Velocidade":
+            cor = (255, 255, 0)
+        elif self.tipo == "Multishot":
+            cor = (0, 255, 0)
+
+
 
         pygame.draw.rect(tela, cor, (self.x, self.y, 20, 20))
 
