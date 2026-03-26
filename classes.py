@@ -25,6 +25,7 @@ class Player():
         self.y = 100
         self.vel = 5
         self.cooldown = 0 
+        self.dano_timer = 0
     def mover(self, teclas, tiros):
         if teclas [pygame.K_d]:
             self.x += self.vel
@@ -60,7 +61,23 @@ class Player():
     
     
     def desenhar(self, tela):
-        pygame.draw.rect(tela, (255, 0, 0), (self.x, self.y, 50, 50))
+        offset_x = 0
+        offset_y = 0
+        
+        if self.dano_timer > 0:
+            offset_x = random.randint(-5, 5)
+            offset_y = random.randint(-5, 5)
+            self.dano_timer -= 1
+        
+            if self.dano_timer % 4 < 2:
+                cor = (255, 255, 0)
+            else:
+                cor = (255, 0, 0)
+
+        else:
+            cor = (255, 0, 0)    
+        
+        pygame.draw.rect(tela, cor, (self.x + offset_x, self.y + offset_y, 50, 50))
 
    
 

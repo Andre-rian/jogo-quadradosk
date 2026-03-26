@@ -207,6 +207,7 @@ while rodando:
                 if rect_inimigo.colliderect(rect_player):
                     inimigos.remove(inimigo)
                     vida -= 1
+                    player.dano_timer = 20
                     explosões.append(Explosão(inimigo.x + 25, inimigo.y + 25))
                     break
 
@@ -221,6 +222,7 @@ while rodando:
             if rect_tiro.colliderect(rect_player):
                 tiros_inimigos.remove(tiro)
                 vida -= 1
+                player.dano_timer = 20
 
         # inimigos
         for inimigo in inimigos[:]:
@@ -230,6 +232,7 @@ while rodando:
             if inimigo.y > 600:
                 inimigos.remove(inimigo)
                 vida -= 1
+                player.dano_timer = 20
                 explosões.append(Explosão(inimigo.x + 25, inimigo.y + 25))
 
             if inimigo.tipo == "basico":
