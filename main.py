@@ -142,9 +142,20 @@ while rodando:
         top = db.get_top_scores()
 
         y = 150
-        for nick, pontos in top:
-            texto = fonte.render(f"{nick} -- {pontos}", True, (255, 255, 0))
-            tela.blit(texto, (300, y))
+        for i ,(nick, pontos) in enumerate(top):
+
+            if i == 0:
+                cor = (255, 215, 0)
+            elif i == 1:
+                cor = (192, 192, 192)
+            elif i == 2:
+                 cor = (205, 127, 50) 
+            else:
+                cor = (255, 255, 255)
+
+
+            texto = fonte.render(f"{i + 1}. {nick} -- {pontos}", True, cor)
+            tela.blit(texto, (280, y))
             y += 40
 
         for evento in pygame.event.get():
