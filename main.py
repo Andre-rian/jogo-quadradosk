@@ -175,6 +175,8 @@ while rodando:
         tela.fill((0, 0, 0))
         rect_player = pygame.Rect(player.x, player.y, 50, 50)
 
+        texto_player = fonte.render(f"Player:  {nome}", True, (255, 255, 255))
+        tela.blit(texto_player, (10, 70))
         dificuldade = 1 + score // 100
         teclas = pygame.key.get_pressed()
         score_salvo = False
