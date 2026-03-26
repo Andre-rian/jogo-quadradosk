@@ -54,6 +54,7 @@ while rodando:
     if estado == "menu":
 
         botao_jogar = Botao(250, 300, 300, 60, "JOGAR")
+        botao_ranking = Botao(250, 400, 300, 60, "Ranking")
 
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
@@ -96,6 +97,9 @@ while rodando:
                 resetar_jogo()
                 estado = "jogando"
 
+            if botao_ranking.clicado(evento):
+                estado = "ranking"
+
         tela.fill((10, 10, 10))
 
         texto_nick = fonte.render(f"Nick: {nome}", True, (255, 255, 255))
@@ -109,6 +113,7 @@ while rodando:
         tela.blit(titulo, (250, 60))
 
         botao_jogar.desenhar(tela, fonte)
+        botao_ranking.desenhar(tela, fonte)
 
         pygame.display.flip()
 
