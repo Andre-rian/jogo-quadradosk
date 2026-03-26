@@ -31,11 +31,12 @@ nome = ""
 senha = ""
 digitando_nome = True
 digitando_senha = False
-piscar = 0 
+piscar = 0
+logado = False
 estado = "menu"
 rodando = True
 def resetar_jogo():
-    global tiros, tiros_inimigos, player, explosões, vida, score, inimigos, dificuldade, powerups, score_salvo, nome, digitando_nome, senha, digitando_senha
+    global tiros, tiros_inimigos, player, explosões, vida, score, inimigos, dificuldade, powerups, score_salvo, nome, digitando_nome, senha, digitando_senha, logado
     tiros_inimigos = []
     inimigos = []
     explosões = []
@@ -45,6 +46,7 @@ def resetar_jogo():
     powerups = []
     player = Player()
     score_salvo = False
+    logado = False
 
 while rodando:
     clock.tick(60)
@@ -83,6 +85,7 @@ while rodando:
                             resultado = db.login(nome, senha)
 
                             if resultado in ["criado", "login"]:
+                                logado = True
                                 resetar_jogo()
                                 estado = "jogando"
 
@@ -93,9 +96,10 @@ while rodando:
                         if len(senha) < 10:
                             senha += evento.unicode
 
-            if botao_jogar.clicado(evento):
+            if botao_jogar.clicado(evento) and logado:
                 resetar_jogo()
                 estado = "jogando"
+
 
             if botao_ranking.clicado(evento):
                 estado = "ranking"
@@ -112,6 +116,12 @@ while rodando:
         titulo = fonte_titulo.render("Quadradoxs", True, (255, 255, 0))
         tela.blit(titulo, (250, 60))
 
+        if not logado and botao_jogar.clicado(evento):
+            texto = fonte.render("Faça login para jogar", True, (255, 0, 0))
+            tela.blit(texto, (250, 240))
+            pygame.draw.rect(tela, (80, 80, 80), botao_jogar.rect) 
+
+
         botao_jogar.desenhar(tela, fonte)
         botao_ranking.desenhar(tela, fonte)
 
@@ -119,6 +129,8 @@ while rodando:
 
     # ================= RANKING =================
     elif estado == "ranking":
+
+        pygame.event.clear()
 
         botao_voltar = Botao(250, 450, 300, 60, "VOLTAR")
 
