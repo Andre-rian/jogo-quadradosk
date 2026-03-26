@@ -27,6 +27,7 @@ dificuldade = 1
 fonte = pygame.font.SysFont("Arial", 30)
 fonte_titulo = pygame.font.SysFont("Arial", 60)
 score = 0
+inicio_timer = 180
 nome = ""
 senha = ""
 digitando_nome = True
@@ -36,11 +37,12 @@ logado = False
 estado = "menu"
 rodando = True
 def resetar_jogo():
-    global tiros, tiros_inimigos, player, explosões, vida, score, inimigos, dificuldade, powerups, score_salvo, nome, digitando_nome, senha, digitando_senha, logado
+    global tiros, tiros_inimigos, player, explosões, vida, score, inimigos, dificuldade, powerups, score_salvo, nome, digitando_nome, senha, digitando_senha, logado, inicio_timer
     tiros_inimigos = []
     inimigos = []
     explosões = []
     vida = 3
+    inicio_timer = 180
     score = 0
     dificuldade = 1
     powerups = []
@@ -87,7 +89,7 @@ while rodando:
                             if resultado in ["criado", "login"]:
                                 logado = True
                                 resetar_jogo()
-                                estado = "jogando"
+                                estado = "inicio"
 
                             elif resultado == "erro":
                                 print("Senha errada")
@@ -98,7 +100,7 @@ while rodando:
 
             if botao_jogar.clicado(evento) and logado:
                 resetar_jogo()
-                estado = "jogando"
+                estado = "inicio"
 
 
             if botao_ranking.clicado(evento):
@@ -169,8 +171,53 @@ while rodando:
 
         pygame.display.flip()
 
+
+
+# ================= timer inicial =================
+
+
+
+    elif estado == "inicio":
+            
+        tela.fill((0, 0, 0))
+
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                rodando = False
+            
+            
+        inicio_timer -= 1 
+
+
+        if inicio_timer > 120:
+            texto = "3"
+
+        elif inicio_timer > 60:
+            texto = "2"
+
+        elif inicio_timer > 30:
+            texto = "1"
+        else:
+            texto = "JÁ"
+
+        texto_render = fonte_titulo.render(texto, True, (255, 255, 255))
+
+        tela.blit(texto_render, (358, 250))      
+
+
+        if inicio_timer <= 0:
+            estado = "jogando"
+
+        pygame.display.flip()   
+        
+
+
+
+
     # ================= JOGO =================
     elif estado == "jogando":
+    
+    
 
         tela.fill((0, 0, 0))
         rect_player = pygame.Rect(player.x, player.y, 50, 50)
@@ -252,6 +299,9 @@ while rodando:
             if explosao.tempo <= 0:
                 explosões.remove(explosao)
 
+
+    
+        
         # spawn
         if spawn_timer > max(40, 150 - dificuldade * 10):
             x = random.randint(0, 750)

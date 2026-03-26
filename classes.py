@@ -21,8 +21,8 @@ class Tiro():
 
 class Player():
     def __init__(self):
-        self.x = 100
-        self.y = 100
+        self.x = 800 // 2 - 25
+        self.y = 800 // 2 - 25
         self.vel = 5
         self.cooldown = 0 
         self.dano_timer = 0
@@ -99,6 +99,11 @@ class Inimigo():
             self.direction_timer = random.randint(30, 120) 
     
         self.x += self.vel_x
+
+        if self.x < 0:
+            self.y = 0
+        elif self.x > 750:
+            self.x = 750
     
     
     def atirar(self, player, tiros_inimigos, dificuldade):
