@@ -26,7 +26,10 @@ class Player():
         self.vel = 5
         self.cooldown = 0 
         self.dano_timer = 0
-        self.multishot = 1
+        self.multishot = False
+        self.tempo_multishot = 0
+
+
     def mover(self, teclas, tiros):
         if teclas [pygame.K_d]:
             self.x += self.vel
@@ -45,35 +48,81 @@ class Player():
             tiros.append(Tiro(self.x + 25, self.y, 0, -10))
             self.cooldown = 20
 
-        if teclas [pygame.K_LEFT] and self.cooldown == 0:
+        elif teclas [pygame.K_LEFT] and self.cooldown == 0:
             tiros.append(Tiro(self.x, self.y + 25, -10, 0))
             self.cooldown = 20
 
-        if teclas [pygame.K_DOWN] and self.cooldown == 0:
+        elif teclas [pygame.K_DOWN] and self.cooldown == 0:
             tiros.append(Tiro(self.x + 25, self.y, 0, 10))
             self.cooldown = 20
 
-        if teclas [pygame.K_RIGHT] and self.cooldown == 0:
+        elif teclas [pygame.K_RIGHT] and self.cooldown == 0:
             tiros.append(Tiro(self.x + 50, self.y + 25, 10, 0))
             self.cooldown = 20
-        if teclas [pygame.K_UP] and self.cooldown == 0:
+
+
             
-            if self.multishot == 1:
-                tiros.append(Tiro(self.x + 25, self.y, 0, -10))
-
-            elif self.multishot == 2:
-                tiros.append(Tiro(self.x + 15, self.y, 0, -10))
-                tiros.append(Tiro(self.x + 35, self.y, 0, -10))
-
-            elif self.multishot == 3:
-                tiros.append(Tiro(self.x + 10, self.y, -2, -10))
-                tiros.append(Tiro(self.x + 25, self.y, 0, -10))
-                tiros.append(Tiro(self.x + 40, self.y, 2, -10))
+        elif teclas [pygame.K_UP] and self.cooldown == 0:
+            
+            for i in range(-self.multishot, self.multishot + 1):
+                tiros.append(Tiro(self.x + 25, self.y, i * 2, -10))
             self.cooldown = 20
     
+        elif teclas[pygame.K_LEFT] and self.cooldown == 0:
+
+            if self.multishot == 0:
+                tiros.append(Tiro(self.x, self.y + 25, -10, 0))
+
+            elif self.multishot >= 1:
+                tiros.append(Tiro(self.x, self.y + 25, -10, 0))
+                tiros.append(Tiro(self.x, self.y + 15, -10, -2))
+                tiros.append(Tiro(self.x, self.y + 35, -10, 2))
+
+            self.cooldown = 20
     
-    
-    
+        elif teclas[pygame.K_RIGHT] and self.cooldown == 0:
+
+            if self.multishot == 0:
+                tiros.append(Tiro(self.x + 50, self.y + 25, 10, 0))
+
+            elif self.multishot == 1:
+                tiros.append(Tiro(self.x + 50, self.y + 25, 10, 0))
+
+            elif self.multishot == 2:
+                tiros.append(Tiro(self.x + 50, self.y + 15, 10, 0))
+                tiros.append(Tiro(self.x + 50, self.y + 35, 10, 0))
+
+            elif self.multishot >= 3:
+                tiros.append(Tiro(self.x + 50, self.y + 10, 10, -2))
+                tiros.append(Tiro(self.x + 50, self.y + 25, 10, 0))
+                tiros.append(Tiro(self.x + 50, self.y + 40, 10, 2))
+
+            self.cooldown = 20
+
+        if teclas[pygame.K_DOWN] and self.cooldown == 0:
+
+            if self.multishot == 0:
+                tiros.append(Tiro(self.x + 25, self.y, 0, 10))
+
+            elif self.multishot == 1:
+                tiros.append(Tiro(self.x + 25, self.y, 0, 10))
+
+            elif self.multishot == 2:
+                tiros.append(Tiro(self.x + 15, self.y, 0, 10))
+                tiros.append(Tiro(self.x + 35, self.y, 0, 10))
+
+            elif self.multishot >= 3:
+                tiros.append(Tiro(self.x + 10, self.y, -2, 10))
+                tiros.append(Tiro(self.x + 25, self.y, 0, 10))
+                tiros.append(Tiro(self.x + 40, self.y, 2, 10))
+
+            self.cooldown = 20
+
+
+
+
+
+
     def desenhar(self, tela):
         offset_x = 0
         offset_y = 0

@@ -323,15 +323,15 @@ while rodando:
 
             if rect_p.colliderect(rect_player):
                 if p.tipo == "Vida":
-                    vida += 1
+                    vida = min(vida + 1, 5)
 
-                elif p.tipo == "Velocidade":
+                if p.tipo == "Velocidade":
                     player.vel += 1
 
-                elif p.tipo == "Tiro":
+                if p.tipo == "Tiro":
                     player.cooldown = max(5, player.cooldown - 5)
 
-                elif p.tipo == "Multishot":
+                if p.tipo == "Multishot":
                     player.multishot = min(3, player.multishot + 1)
 
                 powerups.remove(p)
