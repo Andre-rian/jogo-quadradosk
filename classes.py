@@ -64,59 +64,74 @@ class Player():
             
         elif teclas [pygame.K_UP] and self.cooldown == 0:
             
-            for i in range(-self.multishot, self.multishot + 1):
-                tiros.append(Tiro(self.x + 25, self.y, i * 2, -10))
+            quantidade = 1 + self.multishot * 2
+            angulo_total = 60
+
+
+            for i in range(quantidade):
+                angulo = -angulo_total/2 + (angulo_total/ (quantidade-1)) * i if quantidade > 1 else 0
+
+                rad = math.radians(angulo)
+
+                dx = math.sin(rad) * 10
+                dy = math.cos(rad) * 10
+
+
+                tiros.append(Tiro(self.x + 25, self.y, dx, dy))
             self.cooldown = 20
     
         elif teclas[pygame.K_LEFT] and self.cooldown == 0:
 
-            if self.multishot == 0:
-                tiros.append(Tiro(self.x, self.y + 25, -10, 0))
+            quantidade = 1 + self.multishot * 2
+            angulo_total = 60
 
-            elif self.multishot >= 1:
-                tiros.append(Tiro(self.x, self.y + 25, -10, 0))
-                tiros.append(Tiro(self.x, self.y + 15, -10, -2))
-                tiros.append(Tiro(self.x, self.y + 35, -10, 2))
+            for i in range(quantidade):
+                angulo = -angulo_total/2 + (angulo_total/ (quantidade-1)) * i if quantidade > 1 else 0
+                rad = math.radians(angulo)
 
+                dx = math.sin(rad) * 10
+                dy = math.cos(rad) * 10
+
+                tiros.append(Tiro(self.x + -50, self.y + 25, dx, dy))
             self.cooldown = 20
     
         elif teclas[pygame.K_RIGHT] and self.cooldown == 0:
 
-            if self.multishot == 0:
-                tiros.append(Tiro(self.x + 50, self.y + 25, 10, 0))
+            quantidade = 1 + self.multishot * 2
+            angulo_total = 60
 
-            elif self.multishot == 1:
-                tiros.append(Tiro(self.x + 50, self.y + 25, 10, 0))
 
-            elif self.multishot == 2:
-                tiros.append(Tiro(self.x + 50, self.y + 15, 10, 0))
-                tiros.append(Tiro(self.x + 50, self.y + 35, 10, 0))
+            for i in range(quantidade):
+                angulo = -angulo_total/2 + (angulo_total/ (quantidade-1)) * i if quantidade > 1 else 0
 
-            elif self.multishot >= 3:
-                tiros.append(Tiro(self.x + 50, self.y + 10, 10, -2))
-                tiros.append(Tiro(self.x + 50, self.y + 25, 10, 0))
-                tiros.append(Tiro(self.x + 50, self.y + 40, 10, 2))
+                rad = math.radians(angulo)
 
+                dx = math.sin(rad) * 10
+                dy = math.cos(rad) * 10
+
+
+                tiros.append(Tiro(self.x + 50, self.y + 25, dx, dy))
             self.cooldown = 20
+
+
 
         if teclas[pygame.K_DOWN] and self.cooldown == 0:
+            quantidade = 1 + self.multishot * 2
+            angulo_total = 60
 
-            if self.multishot == 0:
-                tiros.append(Tiro(self.x + 25, self.y, 0, 10))
 
-            elif self.multishot == 1:
-                tiros.append(Tiro(self.x + 25, self.y, 0, 10))
+            for i in range(quantidade):
+                angulo = -angulo_total/2 + (angulo_total/ (quantidade-1)) * i if quantidade > 1 else 0
 
-            elif self.multishot == 2:
-                tiros.append(Tiro(self.x + 15, self.y, 0, 10))
-                tiros.append(Tiro(self.x + 35, self.y, 0, 10))
+                rad = math.radians(angulo)
 
-            elif self.multishot >= 3:
-                tiros.append(Tiro(self.x + 10, self.y, -2, 10))
-                tiros.append(Tiro(self.x + 25, self.y, 0, 10))
-                tiros.append(Tiro(self.x + 40, self.y, 2, 10))
+                dx = math.sin(rad) * 10
+                dy = math.cos(rad) * 10
 
+
+                tiros.append(Tiro(self.x + 25, self.y, dx, dy))
             self.cooldown = 20
+
 
 
 
@@ -253,7 +268,7 @@ class Power_ups():
         elif self.tipo == "Velocidade":
             cor = (255, 255, 0)
         elif self.tipo == "Multishot":
-            cor = (0, 255, 0)
+            cor = (0, 255, 200)
 
 
 
