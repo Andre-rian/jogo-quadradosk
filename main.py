@@ -24,10 +24,12 @@ digitando_nome, digitando_senha = True, False
 logado = False
 score_salvo = False
 inicio_timer = 180
-
+ultimo_nivel = 1
+nivel_timer = 0
 def resetar_jogo():
     global player, inimigos, tiros, tiros_inimigos, explosoes, powerups
     global vida, score, dificuldade, inicio_timer, score_salvo
+    global ultimo_nivel, nivel_timer
     player = Player()
     inimigos = []
     tiros = []
@@ -39,6 +41,8 @@ def resetar_jogo():
     dificuldade = 1
     inicio_timer = 180
     score_salvo = False
+    ultimo_nivel = 1
+    nivel_timer = 0
 
 resetar_jogo()
 
@@ -109,20 +113,31 @@ while rodando:
         tela.blit(surf, (400 - surf.get_width()//2, 300 - surf.get_height()//2))
         if inicio_timer <= 0: estado = "jogando"
 
-    # ================= ESTADO: JOGANDO =================
+# ================= ESTADO: JOGANDO =================
     elif estado == "jogando":
         tela.fill((5, 5, 15))
         teclas = pygame.key.get_pressed()
-        dificuldade = 1 + score // 100
+        
+        # Ajuste na Progressão: A cada 200 pontos, sobe o nível (mais lento que antes)
+        dificuldade = 1 + score // 200
 
+        if dificuldade > ultimo_nivel:
+            ultimo_nivel = dificuldade
+            nivel_timer = 120
+        if nivel_timer > 0:
+            nivel_timer -= 1
+        # 1. Movimentação
         player.mover(teclas, tiros)
         player.x = max(0, min(player.x, 800 - 50))
         player.y = max(0, min(player.y, 600 - 50))
 
-        if random.randint(1, max(20, 100 - dificuldade * 5)) == 1:
+        # 2. Spawn de Inimigos Calibrado
+
+        spawn_rate = max(15, 150 - (dificuldade * 3)) 
+        if random.randint(1, spawn_rate) == 1:
             inimigos.append(Inimigo(random.randint(0, 750), -50, random.choice(["basico", "sniper", "perseguidor"])))
 
-        # Colisões Tiros Player
+        # 3. Atualizar Tiros do Player
         for t in tiros[:]:
             t.mover()
             if not (0 < t.x < 800 and 0 < t.y < 600):
@@ -134,64 +149,88 @@ while rodando:
                     inimigos.remove(i)
                     explosoes.append(Explosao(i.x+25, i.y+25))
                     score += 10
-                    if random.random() < 0.15:
+                    # Drop de Powerup (10% de chance para não poluir a tela)
+                    if random.random() < 0.10:
                         powerups.append(PowerUp(i.x, i.y, random.choice(["Vida", "Tiro", "Velocidade", "Multishot"])))
                     break
 
-        # Atualizar Inimigos
+        # 4. Atualizar Inimigos e Tiros Inimigos
         for i in inimigos[:]:
             i.atualizar()
-            i.y += 1 + (dificuldade * 0.1)
+            # Velocidade de descida baseada na dificuldade
+            i.y += 1 + (dificuldade * 0.15)
+            
             if i.tipo == "basico": i.mover_lateral()
             elif i.tipo == "perseguidor": i.seguir_player(player)
             i.tentar_atirar(player, tiros_inimigos, dificuldade)
+
             if pygame.Rect(i.x, i.y, 50, 50).colliderect(pygame.Rect(player.x, player.y, 50, 50)) or i.y > 600:
                 if i in inimigos: inimigos.remove(i)
                 vida -= 1
                 player.dano_timer = 30
                 explosoes.append(Explosao(i.x+25, i.y+25))
 
+        # 5. Tiros Inimigos (Lógica de Colisão)
         for ti in tiros_inimigos[:]:
             ti.mover()
             if pygame.Rect(ti.x, ti.y, 10, 10).colliderect(pygame.Rect(player.x, player.y, 50, 50)):
-                tiros_inimigos.remove(ti)
+                if ti in tiros_inimigos: tiros_inimigos.remove(ti)
                 vida -= 1
                 player.dano_timer = 30
-            elif not (0 < ti.y < 600): tiros_inimigos.remove(ti)
+            elif not (0 < ti.y < 600): 
+                if ti in tiros_inimigos: tiros_inimigos.remove(ti)
 
+        # 6. Powerups
         for p in powerups[:]:
             p.mover()
             if pygame.Rect(p.x, p.y, 20, 20).colliderect(pygame.Rect(player.x, player.y, 50, 50)):
                 if p.tipo == "Vida": vida = min(vida + 1, 5)
-                elif p.tipo == "Velocidade": player.vel += 0.5
-                elif p.tipo == "Tiro": player.cooldown_max = max(5, player.cooldown_max - 2)
+                elif p.tipo == "Velocidade": player.vel = min(player.vel + 0.3, 8)
+                elif p.tipo == "Tiro": player.cooldown_max = max(8, player.cooldown_max - 2)
                 elif p.tipo == "Multishot": player.multishot = min(2, player.multishot + 1)
                 powerups.remove(p)
+            elif p.y > 600: powerups.remove(p)
 
+        # 7. Explosões
         for e in explosoes[:]:
-            e.atualizar(); 
+            e.atualizar()
             if e.tempo <= 0: explosoes.remove(e)
 
-        # Desenho das Entidades
-        for i in inimigos: i.desenhar(tela)
+        # --- ORDEM DE DESENHO (O QUE ESTÁ EMBAIXO VEM PRIMEIRO) ---
+        for e in explosoes: e.desenhar(tela)
+        for p in powerups: p.desenhar(tela)
         for t in tiros: t.desenhar(tela)
         for ti in tiros_inimigos: ti.desenhar(tela)
-        for p in powerups: p.desenhar(tela)
-        for e in explosoes: e.desenhar(tela)
+        for i in inimigos: i.desenhar(tela)
+        
+        # Desenha o player por cima dos inimigos/tiros
         player.desenhar(tela)
 
-        # --- UI GAMEPLAY (RESTAURADA) ---
+
         cor_vida = (0, 255, 0) if vida > 2 else (255, 255, 0) if vida == 2 else (255, 0, 0)
-        txt_info = fonte.render(f"Player: {nome} | Vida: {vida} | Score: {score}", True, cor_vida)
+        txt_info = fonte.render(f"NICK: {nome} | VIDA: {vida} | SCORE: {score}", True, cor_vida)
         tela.blit(txt_info, (10, 10))
         
+        
+
+        if nivel_timer > 0:
+            texto_nivel = fonte_titulo.render(F"NIVEL {dificuldade}", True, (255, 0, 0))
+
+            if nivel_timer > 30 or nivel_timer % 10 < 5:
+                pos_x = 400 - texto_nivel.get_width() // 2
+                pos_y = 250 - texto_nivel.get_height() // 2
+
+                sombra = fonte_titulo.render(f" Nivel {dificuldade}", True, (0, 0, 0))
+                tela.blit(sombra, (pos_x + 4, pos_y + 4))
+                tela.blit(texto_nivel, (pos_x, pos_y))
+
         if vida <= 0: estado = "gameover"
 
     # ================= ESTADO: GAMEOVER =================
     elif estado == "gameover":
         tela.fill((20, 0, 0))
         btn_retry = Botao(250, 350, 300, 60, "REINICIAR")
-        btn_menu = Botao(250, 430, 300, 60, "MENU PRINCIPAL") # ADICIONADO
+        btn_menu = Botao(250, 430, 300, 60, "MENU PRINCIPAL") 
         
         if not score_salvo:
             db.save_score(nome, score)
