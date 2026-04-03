@@ -1,0 +1,15 @@
+import pygame
+
+# Tela
+LARGURA = 800
+ALTURA = 600
+FPS = 60
+
+# Cores
+BRANCO = (255, 255, 255)
+PRETO = (10, 10, 10)
+VERMELHO = (255, 0, 0)
+AMARELO = (255, 255, 0)
+VERDE = (0, 255, 0)
+AZUL = (0, 0, 255)
+MAGENTA = (255, 0, 255)
